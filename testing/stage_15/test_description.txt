@@ -1,0 +1,3 @@
+Tests:
+	short type
+	long type

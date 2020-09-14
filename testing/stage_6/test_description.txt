@@ -1,0 +1,5 @@
+Tests:
+	if statements
+	if else statements
+	if else if chains
+	ternary operator

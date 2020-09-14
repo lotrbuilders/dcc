@@ -1,0 +1,4 @@
+Tests:
+	integer comparisons
+	logical and/or
+	logical and/or shortcircuit

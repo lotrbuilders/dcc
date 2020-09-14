@@ -1,0 +1,5 @@
+Tests:
+	main function working
+	return working
+	returning int constants
+	general compiler functionality

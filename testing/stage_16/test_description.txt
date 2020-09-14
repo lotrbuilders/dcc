@@ -1,0 +1,4 @@
+Tests:
+	array declaration
+	array access
+	pointer index

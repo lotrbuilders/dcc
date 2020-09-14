@@ -1,0 +1,5 @@
+Tests:
+	local pointer
+	global pointer
+	pointer function argument
+	pointer function 

@@ -1,0 +1,3 @@
+Tests:
+	switch statement
+	duff's device

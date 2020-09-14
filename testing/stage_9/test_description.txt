@@ -1,0 +1,4 @@
+Tests:
+	int function calls
+	int function arguments
+	multiple functions in one file
