@@ -455,6 +455,38 @@ void x86_expression(int op,struct terminal *term)
 	return;
 }
 
+void x86_branch(int op, struct terminal *term, int label)
+{
+	if((term==0)||(term->type==GEN_ADDRL+P+4)||(term->type==GEN_ADDRF+P+4))
+	{
+		if(term!=0)
+		{
+			puts("\tpush eax");
+			x86_terminal(term);
+		}
+		else 
+			x86_stack=x86_stack-4;
+		puts("\tpop ecx");
+		puts("\tcmp eax,ecx");
+	}
+	else
+	{
+		printf("\tcmp eax,");
+		x86_mem_imm(term);
+	}
+	switch(op)
+	{
+		case GEN_JEQ+I+4:	printf("\tje");		break;
+		case GEN_JNE+I+4:	printf("\tjne");	break;
+		case GEN_JLE+I+4:	printf("\tjle");	break;
+		case GEN_JLT+I+4:	printf("\tjl");		break;
+		case GEN_JGE+I+4:	printf("\tjge");	break;
+		case GEN_JGT+I+4:	printf("\tjg");		break;
+	}
+	printf(" .L%d\n",label);
+	return;
+}
+
 int gen_expression(struct astnode *ast);
 int resolve_terminal();
 
@@ -478,7 +510,7 @@ void x86_call(void *lvalue,struct astlist *arguments,int size,int virtual_call)
 	int next_align=x86_stack+arg_size+8;
 	for(;next_align>16;next_align=next_align-16);
 	int offset=16-next_align;
-	fprintf(stderr,"stack %d\ncall offset %d\n",x86_stack,offset);
+	//fprintf(stderr,"stack %d\ncall offset %d\n",x86_stack,offset);
 	
 	printf("\tsub esp,%d\n",offset);
 	x86_stack=x86_stack+offset;
@@ -532,6 +564,7 @@ void x86_setup()
 	x86_gen.cast_expression=x86_cast_expression;
 	x86_gen.unary_expression=x86_unary_expression;
 	x86_gen.expression=x86_expression;
+	x86_gen.branch=x86_branch;
 	x86_gen.call=x86_call;
 	x86_gen.string=x86_string;
 	interface=&x86_gen;

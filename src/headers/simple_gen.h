@@ -41,6 +41,7 @@ struct gen_struct
 	void (*unary_expression)(int op,struct terminal *term);
 	void (*cast_expression)(int to,int from);
 	void (*expression)(int op,struct terminal *term);
+	void (*branch)(int op, struct terminal *term, int label);
 	void (*call)(void *lvalue,struct astlist *arguments,int size,int virtual_call);
 	void (*string)(int n,char *str);
 };

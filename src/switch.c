@@ -60,21 +60,21 @@ void print_switch(struct switchlist *input)
 
 struct switchlist *leave_switch()
 {
-	print_switch(switchframe->list);
+	//print_switch(switchframe->list);
 	struct switchlist *list=switchframe->list;
 	void *tmp=switchframe;
 	switchframe=switchframe->next;
 	free(tmp);
 	if(switchframe==NULL)
 		in_switch=0;
-	print_switch(list);
+	//print_switch(list);
 	return list;
 }
 
 int add_case(int val)
 {
-	print_switch(switchframe->list);
-	fprintf(stderr,"add case: %d @ L%d\n",val,global_label_count);
+	//print_switch(switchframe->list);
+	//fprintf(stderr,"add case: %d @ L%d\n",val,global_label_count);
 	struct switchlist *ptr=calloc(1,sizeof(struct switchlist));
 	if(ptr==NULL)
 	{
@@ -112,8 +112,8 @@ int add_case(int val)
 
 int add_default()
 {
-	print_switch(switchframe->list);
-	fprintf(stderr,"add default: @ L%d\n",global_label_count);
+	//print_switch(switchframe->list);
+	//fprintf(stderr,"add default: @ L%d\n",global_label_count);
 	struct switchlist *ptr=calloc(1,sizeof(struct switchlist));
 	if(ptr==NULL)
 	{
@@ -145,7 +145,7 @@ int add_default()
 	{
 		fprintf(stderr,"weird case list\n");
 	}
-	print_switch(switchframe->list);
-	print_switch(ptr);
+	//print_switch(switchframe->list);
+	//print_switch(ptr);
 	return ptr->label;
 }

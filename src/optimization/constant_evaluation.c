@@ -22,6 +22,8 @@
 
 int eval_type(struct typelist *list);
 
+int DEBUG_CONSTANT_EVAL=0;
+
 
 int is_constant(struct astnode *ast)
 {
@@ -43,7 +45,8 @@ void *constant_evaluation(struct astnode *ast)
 {
 	if(ast==NULL)
 		return ast;
-	fprintf(stderr,"Evaluating constant\n");
+	if(DEBUG_CONSTANT_EVAL)
+		fprintf(stderr,"Evaluating constant\n");
 	switch(ast->id)
 	{
 		case SYM_FUNCTION_CALL:
@@ -146,7 +149,8 @@ void *constant_evaluation(struct astnode *ast)
 				free(ast);
 				free_type(left->type);
 				free_type(right->type);
-				fprintf(stderr,"Evaluating constant still\n");
+				if(DEBUG_CONSTANT_EVAL)
+					fprintf(stderr,"Evaluating constant still\n");
 				switch(id)
 				{
 					case '+':		node->val=left->val+right->val;		break;

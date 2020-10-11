@@ -256,7 +256,8 @@ struct typelist *parse_abstract_declarator()
 	{
 		pop();
 		struct typelist *type=parse_abstract_declarator();
-		print_type(type);
+		if(PARSER_DEBUG)
+			print_type(type);
 		if(type==NULL)
 			return new_type(TYPE_POINTER,NULL,NULL);
 		struct typelist *list;

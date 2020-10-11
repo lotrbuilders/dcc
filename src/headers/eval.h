@@ -69,6 +69,13 @@
 #define GEN_JNZ			0x4100
 #define GEN_RETURN 		0x4200
 
+#define	GEN_JEQ			0x5000
+#define	GEN_JNE			0x5100
+#define	GEN_JLT			0x5200
+#define	GEN_JLE			0x5300
+#define	GEN_JGT			0x5400
+#define	GEN_JGE			0x5500
+
 struct target_size
 {
 	char int_size;

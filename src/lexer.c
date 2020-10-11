@@ -85,7 +85,7 @@ int lex_num(int c)
 		c=peekc();
 		if((c=='x')||c=='X')
 		{
-			fprintf(stderr,"hex\n");
+			//fprintf(stderr,"hex\n");
 			popc();
 			c=peekc();
 			for(i=0;isxdigit(c);c=peekc())

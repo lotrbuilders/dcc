@@ -19,6 +19,8 @@
 #include "symbols.h"
 #include "errorhandling.h"
 
+#define DEBUG_STRUCT 0
+
 int strcmp(char *s1,char *s2);
 
 struct memberlist
@@ -51,7 +53,8 @@ struct typelist *check_declaration(struct astnode *ast,char **name,struct astnod
 
 struct memberlist *getmembers(struct astlist *definition, int *size)
 {
-	fprintf(stderr,"Get struct members\n");
+	if(DEBUG_STRUCT)
+		fprintf(stderr,"Get struct members\n");
 	struct memberlist *members=NULL;
 	int location=0;
 	for(struct astlist *list=definition;list!=NULL;list=list->next)
@@ -59,7 +62,8 @@ struct memberlist *getmembers(struct astlist *definition, int *size)
 		struct typelist *type;
 		char *name=NULL;
 		void *initialization=NULL;
-		fprintf(stderr,"Get struct member \n");
+		if(DEBUG_STRUCT)
+			fprintf(stderr,"Get struct member \n");
 		type=check_declaration(list->child,&name,(void *)&initialization);
 		if(initialization!=NULL)
 			error("Unexpected initialization in struct definition",list->line);
@@ -71,16 +75,22 @@ struct memberlist *getmembers(struct astlist *definition, int *size)
 			fprintf(stderr,"Fatal error: out of memory\n");
 			exit(-1);
 		}
-		fprintf(stderr,"Member %s with ",name);
-		print_type(type);
+		if(DEBUG_STRUCT)
+		{
+			fprintf(stderr,"Member %s with ",name);
+			print_type(type);
+		}
 		ptr->name=name;
 		ptr->type=type;
-		fprintf(stderr,"location %d\n",location);
+		if(DEBUG_STRUCT)
+			fprintf(stderr,"location %d\n",location);
 		location=location+align_type(type,location);
-		fprintf(stderr,"location %d\n",location);
+		if(DEBUG_STRUCT)
+			fprintf(stderr,"location %d\n",location);
 		ptr->location=location;
 		location=location+local_array_size(type,0);
-		fprintf(stderr,"location %d\n",location);
+		if(DEBUG_STRUCT)
+			fprintf(stderr,"location %d\n",location);
 		ptr->next=members;
 		members=ptr;
 	}
@@ -104,7 +114,8 @@ void define_struct(char *name,void *definition,int line)
 		fprintf(stderr,"Fatal error: out of memory\n");
 		exit(-1);
 	}
-	fprintf(stderr,"Struct name %s\n",name);
+	if(DEBUG_STRUCT)
+		fprintf(stderr,"Struct name %s\n",name);
 	ptr->name=name;
 	
 	ptr->next=global_structlist;
@@ -118,18 +129,28 @@ void define_struct(char *name,void *definition,int line)
 
 struct typelist *find_struct_member(char *structname,char *member_name,int *offset)
 {
-	fprintf(stderr,"Find struct member %s in struct %s\n",member_name,structname);
+	if(DEBUG_STRUCT)
+		fprintf(stderr,"Find struct member %s in struct %s\n",member_name,structname);
 	for(struct structlist *list=global_structlist;list!=NULL;list=list->next)
 	{
-		fprintf(stderr,"Check struct\n");
-		fprintf(stderr,"%s==%s\n",structname,list->name);
+		if(DEBUG_STRUCT)
+		{
+			fprintf(stderr,"Check struct\n");
+			fprintf(stderr,"%s==%s\n",structname,list->name);
+		}
 		if(!strcmp(list->name,structname))
 		{
-			fprintf(stderr,"Check members\n");
+			if(DEBUG_STRUCT)
+			{
+				fprintf(stderr,"Check members\n");
+			}
 			for(struct memberlist *memb=list->member;memb!=NULL;memb=memb->next)
 			{
-				fprintf(stderr,"Check member\n");
-				fprintf(stderr,"%s==%s\n",memb->name,member_name);
+				if(DEBUG_STRUCT)
+				{
+					fprintf(stderr,"Check member\n");
+					fprintf(stderr,"%s==%s\n",memb->name,member_name);
+				}
 				if(!strcmp(memb->name,member_name))
 				{
 					*offset=memb->location;

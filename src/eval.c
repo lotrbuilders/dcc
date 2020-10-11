@@ -24,7 +24,7 @@
 #include "string_eval.h"
 #include "struct.h"
 
-int DEBUG_EVAL=1;
+int DEBUG_EVAL=0;
 
 struct astlist *eval(struct astlist *ast);
 struct astnode *eval_global(struct astnode *ast);
@@ -33,6 +33,7 @@ struct astnode *eval_statement(struct astnode *ast);
 struct astnode *eval_expression(struct astnode *ast);
 struct astlist *eval_expression_list(struct astlist *list);
 struct astnode *eval_lvalue(struct astnode *ast);
+struct astnode *eval_jz(struct astnode *exp,int label);
 
 int eval_type(struct typelist *type);
 
@@ -93,7 +94,8 @@ struct astlist *eval_arguments(struct astnode *ast)
 		fprintf(stderr,"evaluating function arguments\n");
 	for(struct astnode *list=ast;list!=NULL;list=list->child[2])
 	{
-		fprintf(stderr,"evaluating function argument\n");
+		if(DEBUG_EVAL)
+			fprintf(stderr,"evaluating function argument\n");
 			add_argument_id(list->child[0],list->type);
 			
 			struct astlist *new=newastlist(GEN_ARG+eval_type(ast->type),ast->line,list->child[0],NULL);
@@ -105,7 +107,8 @@ struct astlist *eval_arguments(struct astnode *ast)
 				last=last->next;
 			}
 	}
-	fprintf(stderr,"evaluating function argument\n");
+	if(DEBUG_EVAL)
+		fprintf(stderr,"evaluating function argument\n");
 	return *start;
 }
 
@@ -163,9 +166,10 @@ struct astnode *eval_statement(struct astnode *ast)
 			int label_count=global_label_count;
 			global_label_count=global_label_count+1;
 			
-			struct astnode *node=newnode(GEN_JZ+gen_size->int_size,ast->line,2);
+			/*struct astnode *node=newnode(GEN_JZ+gen_size->int_size,ast->line,2);
 			node->child[0]=eval_expression(ast->child[0]);
-			node->child[1]=newconst(GEN_LABEL,ast->line,label_count);
+			node->child[1]=newconst(GEN_LABEL,ast->line,label_count);*/
+			struct astnode *node=eval_jz(ast->child[0],label_count);
 			
 			struct astnode *child=eval_statement(ast->child[1]);
 			
@@ -181,9 +185,10 @@ struct astnode *eval_statement(struct astnode *ast)
 			int label_count=global_label_count;
 			global_label_count=global_label_count+2;
 			
-			struct astnode *node=newnode(GEN_JZ+gen_size->int_size,ast->line,2);
+			/*struct astnode *node=newnode(GEN_JZ+gen_size->int_size,ast->line,2);
 			node->child[0]=eval_expression(ast->child[0]);
-			node->child[1]=newconst(GEN_LABEL,ast->line,label_count);
+			node->child[1]=newconst(GEN_LABEL,ast->line,label_count);*/
+			struct astnode *node=eval_jz(ast->child[0],label_count);
 			
 			struct astnode *child1=eval_statement(ast->child[1]);
 			
@@ -215,9 +220,10 @@ struct astnode *eval_statement(struct astnode *ast)
 			
 			struct constnode *label1=newconst(GEN_LABEL,ast->line,label_count);
 			
-			struct astnode *node=newnode(GEN_JZ+gen_size->int_size,ast->line,2);
+			/*struct astnode *node=newnode(GEN_JZ+gen_size->int_size,ast->line,2);
 			node->child[0]=eval_expression(ast->child[0]);
-			node->child[1]=newconst(GEN_LABEL,ast->line,label_count+1);
+			node->child[1]=newconst(GEN_LABEL,ast->line,label_count+1);*/
+			struct astnode *node=eval_jz(ast->child[0],label_count+1);
 			
 			struct astnode *child=eval_statement(ast->child[1]);
 			
@@ -284,9 +290,10 @@ struct astnode *eval_statement(struct astnode *ast)
 			
 			struct constnode *label1=newconst(GEN_LABEL,ast->line,label_count);
 			
-			struct astnode *condition=newnode(GEN_JZ+gen_size->int_size,ast->line,2);
+			/*struct astnode *condition=newnode(GEN_JZ+gen_size->int_size,ast->line,2);
 			condition->child[0]=eval_expression(ast->child[1]);
-			condition->child[1]=newconst(GEN_LABEL,ast->line,label_count+2);
+			condition->child[1]=newconst(GEN_LABEL,ast->line,label_count+2);*/
+			struct astnode *condition=eval_jz(ast->child[1],label_count+2);
 			
 			struct astnode *statement=eval_statement(ast->child[3]);
 			
@@ -373,8 +380,10 @@ struct astnode *eval_statement(struct astnode *ast)
 		case SYM_LOCAL_DECLARATION:
 		{
 			if(DEBUG_EVAL)
+			{
 				fprintf(stderr,"eval local declaration\n");
-			print_type(ast->type);
+				print_type(ast->type);
+			}
 			add_local_id(ast->child[0],ast->type);
 			if(ast->child[2]!=NULL)
 			{
@@ -585,7 +594,8 @@ struct astnode *eval_expression(struct astnode *ast)
 			
 			if(lefttype->type==TYPE_POINTER)
 			{
-				fprintf(stderr,"type pointer in add/sub\n");
+				if(DEBUG_EVAL)
+					fprintf(stderr,"type pointer in add/sub\n");
 				int size=eval_type(lefttype->next)&0x1f;
 				if(size==1)
 				{
@@ -606,7 +616,8 @@ struct astnode *eval_expression(struct astnode *ast)
 			}
 			else if(righttype->type==TYPE_POINTER)
 			{
-				fprintf(stderr,"type pointer in add/sub\n");
+				if(DEBUG_EVAL)
+					fprintf(stderr,"type pointer in add/sub\n");
 				int size=eval_type(lefttype->next)&0x1f;
 				if(size==1)
 				{
@@ -766,7 +777,8 @@ struct astnode *eval_lvalue(struct astnode *ast)
 		case SYM_ARRAY:
 		{
 			struct typelist *righttype=((struct astnode *)ast->child[1])->type;
-			print_type(ast->type);
+			if(DEBUG_EVAL)
+				print_type(ast->type);
 			
 			struct astnode *add=newnode(GEN_ADD+P+gen_size->pointer_size,ast->line,2);
 			struct astnode *add_left=eval_expression(ast->child[0]);
@@ -825,7 +837,8 @@ int eval_type(struct typelist *type)
 {
 	if(type==NULL)
 	{
-		fprintf(stderr,"typelist in eval_type is NULL\n");
+		if(DEBUG_EVAL)
+			fprintf(stderr,"typelist in eval_type is NULL\n");
 		return I+gen_size->int_size;
 	}
 	switch(type->type)
@@ -848,8 +861,6 @@ int eval_type(struct typelist *type)
 	}
 }
 
-
-
 int add_string(char *str)
 {
 	struct string_list *ptr=calloc(2,sizeof(void *));
@@ -864,4 +875,42 @@ int add_string(char *str)
 	str_count=str_count+1;
 	local_strings=ptr;
 	return ptr->n;
+}
+
+struct astnode *eval_jz(struct astnode *exp,int label)
+{
+	switch(exp->id)
+	{
+		case SYM_EQ:	
+		case SYM_NE:	
+		case '<':	
+		case SYM_LE:	
+		case '>':	
+		case SYM_GE:	
+		{
+			int id=GEN_JNE;
+			switch(exp->id)
+			{
+				case SYM_EQ: 	id=GEN_JNE;	break;
+				case SYM_NE:	id=GEN_JEQ;	break;	
+				case '<':		id=GEN_JGE;	break;
+				case SYM_LE:	id=GEN_JGT;	break;
+				case '>':		id=GEN_JLE;	break;
+				case SYM_GE:	id=GEN_JLT;	break;
+				default:		fprintf(stderr,"Error eval jz\n");
+			}
+			struct astnode *jump=newnode(id+gen_size->int_size,exp->line,3);
+			jump->child[0]=eval_expression(exp->child[0]);
+			jump->child[1]=eval_expression(exp->child[1]);
+			jump->child[2]=newconst(GEN_LABEL,exp->line,label);
+			return jump;
+		}
+		default:
+		{
+			struct astnode *jump=newnode(GEN_JZ+gen_size->int_size,exp->line,2);
+			jump->child[0]=eval_expression(exp);
+			jump->child[1]=newconst(GEN_LABEL,exp->line,label);
+			return jump;
+		}
+	}
 }

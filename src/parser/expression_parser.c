@@ -244,7 +244,7 @@ struct astnode *parse_cast_expression()
 			case TOK_STRUCT:
 			case TOK_VOID:
 			{
-				fprintf(stderr,"\tParsing cast expression a\n");
+				//fprintf(stderr,"\tParsing cast expression a\n");
 				struct astnode *typename=parse_type_name();
 				if(peek()!=')')
 				{
@@ -259,7 +259,7 @@ struct astnode *parse_cast_expression()
 			}
 			default:
 			{
-				fprintf(stderr,"\tParsing cast expression b\n");
+				//fprintf(stderr,"\tParsing cast expression b\n");
 				push('(');
 				return parse_unary_expression();
 			}
@@ -267,7 +267,7 @@ struct astnode *parse_cast_expression()
 	}
 	else 
 	{
-		fprintf(stderr,"\tParsing cast expression c\n");
+		//fprintf(stderr,"\tParsing cast expression c\n");
 		return parse_unary_expression();
 	}
 }

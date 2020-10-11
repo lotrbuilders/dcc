@@ -21,7 +21,8 @@
 #include "eval.h"
 #include "struct.h"
 
-int strcmp(char *s1,char *s2);
+//int strcmp(char *s1,char *s2);
+int DEBUG_IDENTIFIER=0;
 
 struct identifier_list
 {
@@ -55,7 +56,8 @@ void enter_block()
 	}
 	new->next=blocks;
 	blocks=new;
-	fprintf(stderr,"enter_block\n");
+	if(DEBUG_IDENTIFIER)
+		fprintf(stderr,"enter_block\n");
 	return;
 }
 
@@ -73,7 +75,8 @@ int leave_block()
 	id_stack=id_stack-size;
 	free(blocks);
 	blocks=next_block;
-	fprintf(stderr,"leave block. Size=%d\n",size);
+	if(DEBUG_IDENTIFIER)
+		fprintf(stderr,"leave block. Size=%d\n",size);
 	return size;
 }
 
@@ -120,7 +123,8 @@ int local_sizeof(struct typelist *type)
 		return gen_size->pointer_size;
 	else if(type->type==TYPE_ARRAY)
 	{
-		fprintf(stderr,"local sizeof:");
+		if(DEBUG_IDENTIFIER)
+			fprintf(stderr,"local sizeof:");
 		return local_array_size(type,1);
 	}
 	else if(type->type==TYPE_STRUCT)
@@ -169,7 +173,8 @@ void add_local_id(char *name,struct typelist *type)
 	new->loc=local_stack_loc(id_stack,type,new->size);
 	id_stack=id_stack+new->size;
 	blocks->list=new;
-	fprintf(stderr,"add entry %s with size %d at %d\n",name,new->size,new->loc);
+	if(DEBUG_IDENTIFIER)
+		fprintf(stderr,"add entry %s with size %d at %d\n",name,new->size,new->loc);
 	return;
 }
 
@@ -214,8 +219,11 @@ void add_global_id(char *name,struct typelist *type,char defined)
 	new->size=local_sizeof(type);
 	new->defined=defined;
 	globals=new;
-	fprintf(stderr,"add global entry %s\n",name);
-	print_type(type);
+	if(DEBUG_IDENTIFIER)
+	{
+		fprintf(stderr,"add global entry %s\n",name);
+		print_type(type);
+	}
 	return;
 }
 
@@ -286,7 +294,8 @@ void add_argument_id(char *name,struct typelist *type)
 	new->loc=func_arg_count;
 	func_arg_count=func_arg_count+1;
 	function_args=new;
-	fprintf(stderr,"add function argument entry %s at %d\n",name,new->loc);
+	if(DEBUG_IDENTIFIER)
+		fprintf(stderr,"add function argument entry %s at %d\n",name,new->loc);
 	return;
 }
 

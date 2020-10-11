@@ -20,7 +20,8 @@
 #include "identifier.h"
 #include "eval.h"
 
-int strcmp(char *s1,char *s2);
+int DEBUG_GLOBAL_EVAL=0;
+//int strcmp(char *s1,char *s2);
 int eval_type(struct typelist *type);
 
 struct identifier_list
@@ -48,7 +49,9 @@ void global_eval_add(char *name,struct typelist *type,char defined,long val)
 	new->defined=defined;
 	new->next=global_eval_list;
 	global_eval_list=new;
-	fprintf(stderr,"add global eval entry %s\n",name);
+	
+	if(DEBUG_GLOBAL_EVAL)
+		fprintf(stderr,"add global eval entry %s\n",name);
 	return;
 }
 
@@ -92,7 +95,8 @@ struct astlist *glob_eval_gen(struct identifier_list *list)
 		struct astnode *node=newnode(GEN_COMMON,0,2);
 		node->child[0]=list->name;
 		node->child[1]=newconst(GEN_NUM,0,local_array_size(list->type,0));
-		fprintf(stderr,"common size %d\n",local_array_size(list->type,0));
+		if(DEBUG_GLOBAL_EVAL)
+			fprintf(stderr,"common size %d\n",local_array_size(list->type,0));
 		return newastlist(GEN_LIST,0,node,glob_eval_gen(list->next));
 	}
 	return glob_eval_gen(list->next);
@@ -100,7 +104,8 @@ struct astlist *glob_eval_gen(struct identifier_list *list)
 
 struct astlist *global_eval_gen()
 {
-	fprintf(stderr,"evaluating globals\n");
+	if(DEBUG_GLOBAL_EVAL)
+		fprintf(stderr,"evaluating globals\n");
 	return glob_eval_gen(global_eval_list);
 }
 

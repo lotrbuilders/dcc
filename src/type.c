@@ -21,6 +21,8 @@
 #include "errorhandling.h"
 #include "eval.h"
 
+#define TYPE_DEBUG 0
+
 struct typelist *new_type(short type,void *val,struct typelist* next)
 {
 	struct typelist *ptr=calloc(1,sizeof(struct typelist));
@@ -71,7 +73,8 @@ struct typelist *replace_typelist(struct typelist *list1,struct typelist *list2,
 
 struct typelist *insert_typelist(struct typelist *type,struct typelist *insert)
 {
-	print_type(type);
+	if(TYPE_DEBUG)
+		print_type(type);
 	if(type==NULL)
 		return insert;
 	if(type->type==TYPE_ID)
@@ -84,7 +87,8 @@ struct typelist *insert_typelist(struct typelist *type,struct typelist *insert)
 	struct typelist *temp=list->next;
 	list->next=insert;
 	insert->next=temp;
-	print_type(type);
+	if(TYPE_DEBUG)
+		print_type(type);
 	return type;
 }
 
@@ -101,7 +105,8 @@ char *find_type_identifier(struct typelist *list,int line)
 
 int compare_type(struct typelist *list1,struct typelist *list2)
 {
-	fprintf(stderr,"Compare types\n");
+	if(TYPE_DEBUG)
+		fprintf(stderr,"Compare types\n");
 	while((list1!=NULL)&&(list2!=NULL))
 	{
 		if(list1->type!=list2->type)
@@ -120,9 +125,12 @@ int compare_type(struct typelist *list1,struct typelist *list2)
 
 int is_compatible_type(struct typelist *list1,struct typelist *list2)
 {
-	fprintf(stderr,"Check comparable types\n");
-	print_type(list1);
-	print_type(list2);
+	if(TYPE_DEBUG)
+	{
+		fprintf(stderr,"Check comparable types\n");
+		print_type(list1);
+		print_type(list2);
+	}
 	if(list1->type==TYPE_POINTER&&list2->type==TYPE_POINTER)
 		return 0;//pointer types automatically compatible for now;
 	else if(list1->type==TYPE_ARRAY&&list2->type==TYPE_POINTER)
@@ -160,7 +168,8 @@ void *constant_evaluation(struct astnode *ast);
 
 void check_declaration_type(struct typelist *list,int line)
 {
-	fprintf(stderr,"Check declaration type\n");
+	if(TYPE_DEBUG)
+		fprintf(stderr,"Check declaration type\n");
 	if(list==NULL)
 		return;
 	if(list->type==TYPE_FUNCTION)

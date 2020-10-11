@@ -35,7 +35,7 @@ struct astnode *check_lvalue(struct astnode *ast);
 
 struct typelist *current_function_type;
 
-int DEBUG_SEMANTICS=1;
+int DEBUG_SEMANTICS=0;
 
 struct astnode *check_semantics(struct astnode *ast)
 {
@@ -589,7 +589,8 @@ struct astnode *check_expression(struct astnode *ast)
 			}
 			else
 				ast->id=SYM_IDL;
-			print_type(ast->type);
+			if(DEBUG_SEMANTICS)
+				print_type(ast->type);
 			if(ast->type->type==TYPE_FUNCTION)
 			{
 				struct astnode *node=newnode(ast->id,ast->line,1);
@@ -608,7 +609,8 @@ struct astnode *check_expression(struct astnode *ast)
 			break;
 		case SYM_SIZEOF:
 			ast->child[1]=check_type_name(ast->child[0]);
-			print_type(ast->child[1]);
+			if(DEBUG_SEMANTICS)
+				print_type(ast->child[1]);
 			switch(((struct typelist *)ast->child[1])->type)
 			{
 				case TYPE_FUNCTION:error("Unexpected sizeof function",ast->line);break;
@@ -975,7 +977,8 @@ struct typelist *check_expression_type(int op,struct astnode *left,struct astnod
 			return extra->type;
 			break;
 		case '='://Unary type promotion does not apply to assignment
-			print_type(left->type);
+			if(DEBUG_SEMANTICS)
+				print_type(left->type);
 			if(left->type->type==TYPE_ARRAY||left->type->type==TYPE_STRUCT)
 				error("Can not assign to type array or struct",line);
 			if(is_compatible_type(left->type,right->type)!=0)

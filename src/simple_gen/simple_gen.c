@@ -24,7 +24,11 @@ int gen_statement(struct astnode *ast);
 int gen_expression(struct astnode *ast);
 int gen_strings(struct string_list *list);
 
-int GEN_DEBUG=1;
+int is_terminal(struct astnode *ast);
+struct terminal *next_terminal;
+struct terminal term;
+
+int GEN_DEBUG=0;
 int global_label_count;
 int frame_size;
 
@@ -164,13 +168,55 @@ int gen_statement(struct astnode *ast)
 		}
 		break;
 		
+		case GEN_JEQ+I+2:
+		case GEN_JEQ+I+4:
+		case GEN_JEQ+I+8:
+		case GEN_JNE+I+2:
+		case GEN_JNE+I+4:
+		case GEN_JNE+I+8:
+		case GEN_JLE+I+2:
+		case GEN_JLE+I+4:
+		case GEN_JLE+I+8:
+		case GEN_JLT+I+2:
+		case GEN_JLT+I+4:
+		case GEN_JLT+I+8:
+		case GEN_JGE+I+2:
+		case GEN_JGE+I+4:
+		case GEN_JGE+I+8:
+		case GEN_JGT+I+2:
+		case GEN_JGT+I+4:
+		case GEN_JGT+I+8:
+		{
+			if(GEN_DEBUG)
+				fprintf(stderr,"gen jump if ==/!=/>/</>=/<= \n");
+			int label=((struct constnode *)ast->child[2])->val;
+			if(is_terminal(ast->child[1]))
+			{
+				gen_expression(ast->child[0]);
+				resolve_terminal();
+				gen_expression(ast->child[1]);
+				interface->branch(ast->id,next_terminal,label);
+				next_terminal=0;
+			}
+			else 
+			{
+				gen_expression(ast->child[1]);
+				interface->save_top();
+				gen_expression(ast->child[0]);
+				resolve_terminal();
+				interface->branch(ast->id,next_terminal,label);
+				next_terminal=0;
+			}
+			break;
+		}
 		case GEN_CASE:
 		{
 			gen_expression(ast->child[0]);
 			resolve_terminal();
 			for(struct switchlist *list=ast->child[2];list!=NULL;list=list->next)
 			{
-				fprintf(stderr,"case:\n\tdefault: %d\n\t%p:%p\n",list->def,list,list->next);
+				if(GEN_DEBUG)
+					fprintf(stderr,"case:\n\tdefault: %d\n\t%p:%p\n",list->def,list,list->next);
 				if(!list->def)
 					interface->jump_case(list->val,list->label);
 				if(list->def)
@@ -194,8 +240,7 @@ int gen_statement(struct astnode *ast)
 	return 0;
 }
 
-struct terminal *next_terminal;
-struct terminal term;
+
 
 int is_terminal(struct astnode *ast)
 {

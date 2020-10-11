@@ -31,7 +31,7 @@ struct astnode *parse_compound_statement();
 int saved_token;
 int pushed_token;
 
-int PARSER_DEBUG=1;
+int PARSER_DEBUG=0;
 int PEEK_DEBUG=0;
 
 int peek()

@@ -32,12 +32,14 @@ int main()
 	init_tokens();
 	x86_setup();
 	void *ast=parse();
-	fputs("\n\n",stderr);
+	//fputs("\n\n",stderr);
 	check_semantics(ast);
-	fprintf(stderr,"errorcount %d\n",error_count);
 	if(error_count>0)
+	{
+		fprintf(stderr,"errorcount %d\n",error_count);
 		return -1;
-	fputs("\n\n",stderr);
+	}
+	//fputs("\n\n",stderr);
 	struct astnode *ast2=eval(ast);
 	gen(ast2);
 	return 0;

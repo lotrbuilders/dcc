@@ -24,8 +24,8 @@
 
 
 char *strdup(char *str);
-int strlen(char *str);
-char *strcpy(char *s1,char *s2);
+//int strlen(char *str);
+//char *strcpy(char *s1,char *s2);
 
 char *input_file;
 char *cpp_file;
