@@ -13,3 +13,4 @@ Currently not present
 After the makefile has been run there is an install.sh script, which can put the files in the correct location for a linux setup. To edit the locations have a look at /src/etc/dcc.c and the install.sh script.
 ## Licensing
 The compiler is licensed under GPL as shown by the license. The testsuite under /testing/ is licensed under MIT. 
+Including the header files in the /include/ in a project is considered normal use of the software. Software that uses those header files as is normal in the C programming language does not automatically have to be GPL licensed.
