@@ -1,6 +1,6 @@
 # C Compiler tests
-SCCC uses the compiler tests as written by Nora Sandler. These have been modified to suit the limitations and extra features of this compiler. Stage 1-10 have been modified and expanded a bit, whereas Stage 11 and 12 were created specifically for this project.
-Note this file has been edited for SCCC purposes, as has the testing script.
+DCC uses the compiler tests as written by Nora Sandler. These have been modified to suit the limitations and extra features of this compiler. Stage 1-10 have been modified and expanded a bit, whereas Stage 11 to 22 were created specifically for this project.
+This file has been edited for DCC purposes. All files in the testsuit are licensed under an MIT-license.
 
 
 # Write a C Compiler!
@@ -11,17 +11,19 @@ This is a set of C test programs to help you write your own compiler. They were 
 
 ### test all
 ```
-./test_compiler.sh sccc
+./test_compiler.sh dcc
+./test_compiler.sh ./run.sh
 ```
+The first is for an installed version of dcc, whilst the second only requires the compiler to be present in the top level directory
 
 ### test specific stages
 To test stage 1 and stage 3,
 ```
-./test_compiler.sh sccc 1 3
+./test_compiler.sh dcc 1 3
 ```
 To test from stage 1 to stage 6,
 ```
-./test_compiler.sh sccc `seq 1 6`
+./test_compiler.sh dcc `seq 1 6`
 ```
 
 In order to use this script, your compiler needs to follow this spec:
