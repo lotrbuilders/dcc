@@ -275,6 +275,9 @@ int is_terminal(struct astnode *ast)
 		case GEN_NUM+I+2:
 		case GEN_NUM+I+4:
 		case GEN_NUM+I+8:
+		case GEN_NUM+P+2:
+		case GEN_NUM+P+4:
+		case GEN_NUM+P+8:
 		
 		case GEN_LOADL+P+2:
 		case GEN_LOADL+P+4:
@@ -333,6 +336,9 @@ int gen_expression(struct astnode *ast)
 		ast->id=GEN_NUM+I+gen_size->int_size;
 	switch(ast->id)
 	{
+		case GEN_NUM+P+2:
+		case GEN_NUM+P+4:
+		case GEN_NUM+P+8:
 		case GEN_NUM+I+2:
 		case GEN_NUM+I+4:
 		case GEN_NUM+I+8:
@@ -669,7 +675,7 @@ int gen_expression(struct astnode *ast)
 			break;
 			
 		default:
-			fprintf(stderr,"Error, unknown expression type %d\n",ast->id);
+			fprintf(stderr,"Error, unknown expression type %d on line %d\n",ast->id,ast->line);
 			break;
 	}
 	return 0;

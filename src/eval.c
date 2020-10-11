@@ -94,8 +94,8 @@ struct astlist *eval_arguments(struct astnode *ast)
 		fprintf(stderr,"evaluating function arguments\n");
 	for(struct astnode *list=ast;list!=NULL;list=list->child[2])
 	{
-		if(DEBUG_EVAL)
-			fprintf(stderr,"evaluating function argument\n");
+			if(DEBUG_EVAL)
+				fprintf(stderr,"evaluating function argument\n");
 			add_argument_id(list->child[0],list->type);
 			
 			struct astlist *new=newastlist(GEN_ARG+eval_type(ast->type),ast->line,list->child[0],NULL);
@@ -405,16 +405,22 @@ struct astnode *eval_statement(struct astnode *ast)
 }
 
 int local_array_size(struct typelist *type,int first);
+void *constant_evaluation(struct astnode *ast);
 struct astnode *eval_expression(struct astnode *ast)
 {
 	if(ast==NULL)
 		return NULL;
 	if(DEBUG_EVAL)
-		fprintf(stderr,"evaluating expression\n");
+		fprintf(stderr,"evaluating expression %d\n",ast->line);
+	ast=constant_evaluation(ast);
+	if(DEBUG_EVAL)
+		fprintf(stderr,"evaluating expression %d\n",ast->line);
 	switch(ast->id)
 	{
 		case SYM_NUM:
 		{
+			if(DEBUG_EVAL)
+				fprintf(stderr,"evaluating number\n");
 			struct constnode *node=newconst(GEN_NUM+eval_type(ast->type),ast->line,((struct constnode *)ast)->val);
 			return (void*)node;
 		}
@@ -455,6 +461,7 @@ struct astnode *eval_expression(struct astnode *ast)
 		}
 		case SYM_FUNCTION_CALL:
 		{
+			
 			struct astnode *node=newnode(GEN_CALL+eval_type(ast->type),ast->line,2);
 			node->child[0]=((struct astnode *)ast->child[0])->child[0];
 			node->child[1]=eval_expression_list(ast->child[1]);
@@ -571,6 +578,8 @@ struct astnode *eval_expression(struct astnode *ast)
 		}
 		case '*':
 		{
+			if(DEBUG_EVAL)
+				fprintf(stderr,"evaluating *\n");
 			struct astnode *node=newnode(GEN_MUL+eval_type(ast->type),ast->line,2);
 			node->child[0]=eval_expression(ast->child[0]);
 			node->child[1]=eval_expression(ast->child[1]);
@@ -586,6 +595,8 @@ struct astnode *eval_expression(struct astnode *ast)
 		case '+':
 		case '-':
 		{
+			if(DEBUG_EVAL)
+				fprintf(stderr,"evaluating +/-\n");
 			struct typelist *lefttype=((struct astnode *)ast->child[0])->type;
 			struct typelist *righttype=((struct astnode *)ast->child[1])->type;
 			

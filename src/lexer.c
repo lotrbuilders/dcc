@@ -19,7 +19,7 @@
 #include "lexer.h"
 #include "errorhandling.h"
 
-int strcmp(char *s1,char *s2);
+//int strcmp(char *s1,char *s2);
 
 int lex_num(int c);
 int lex_identifier(int c);

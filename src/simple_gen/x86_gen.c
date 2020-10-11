@@ -153,6 +153,7 @@ void x86_terminal(struct terminal *term)
 		return;
 	switch(term->type)
 	{
+		case GEN_NUM+P+4:
 		case GEN_NUM+I+4:
 			printf("\tmov eax,%d\n",(int)term->val);
 			break;
@@ -256,6 +257,7 @@ void x86_mem_imm(struct terminal *term)
 		return;
 	switch(term->type)
 	{
+		case GEN_NUM+P+4:
 		case GEN_NUM+I+4:
 			printf("%d\n",(int)term->val);
 			break;

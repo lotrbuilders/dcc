@@ -46,17 +46,26 @@ void *constant_evaluation(struct astnode *ast)
 	if(ast==NULL)
 		return ast;
 	if(DEBUG_CONSTANT_EVAL)
-		fprintf(stderr,"Evaluating constant\n");
+		fprintf(stderr,"Evaluating constant %d\n",ast->id);
 	switch(ast->id)
 	{
 		case SYM_FUNCTION_CALL:
+		case SYM_VFUNCTION_CALL:
 		case SYM_ADDRESS:
 		case SYM_INDIRECT:
+		case SYM_ARRAY:
+		case SYM_DOT:
+		case SYM_ARROW:
 		
 		case SYM_ID:
 		case SYM_STRING:
-		case '=':
+		case SYM_IDL:
+		case SYM_IDG:
+		case SYM_IDF:
 			//Not possible or not allowed
+			break;
+		case '=':
+			ast->child[1]=constant_evaluation(ast->child[1]);
 			break;
 			
 		case SYM_NUM:
@@ -65,9 +74,11 @@ void *constant_evaluation(struct astnode *ast)
 		{
 			int line=ast->line;
 			int size=local_array_size(ast->child[1],0);
+			struct constnode *node=newconst(SYM_NUM,line,size);
+			node->type=ast->type;
 			free_type(ast->child[1]);
 			free(ast);
-			return newconst(SYM_NUM,line,size);
+			return node;
 			break;
 		}
 		case SYM_CAST:
@@ -173,6 +184,9 @@ void *constant_evaluation(struct astnode *ast)
 			}
 			break;
 		case SYM_SEL:
+			ast->child[0]=constant_evaluation(ast->child[0]);
+			ast->child[1]=constant_evaluation(ast->child[1]);
+			ast->child[2]=constant_evaluation(ast->child[2]);
 			//TODO free one side if condition is constant
 			break;
 		
