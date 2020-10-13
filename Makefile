@@ -1,6 +1,6 @@
 IDIR = ./src/headers
 BDIR ?= ./obj
-DCC ?= dcc
+DCC ?= cc
 CFLAGS = -I$(IDIR) -m32 -std=c99 -Wall -Werror -O1 -Wno-builtin-declaration-mismatch
 
 vpath %.c ./src 

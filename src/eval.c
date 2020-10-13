@@ -34,6 +34,7 @@ struct astnode *eval_expression(struct astnode *ast);
 struct astlist *eval_expression_list(struct astlist *list);
 struct astnode *eval_lvalue(struct astnode *ast);
 struct astnode *eval_jz(struct astnode *exp,int label);
+struct astnode *eval_jnz(struct astnode *exp,int label);
 
 int eval_type(struct typelist *type);
 
@@ -166,17 +167,14 @@ struct astnode *eval_statement(struct astnode *ast)
 			int label_count=global_label_count;
 			global_label_count=global_label_count+1;
 			
-			/*struct astnode *node=newnode(GEN_JZ+gen_size->int_size,ast->line,2);
-			node->child[0]=eval_expression(ast->child[0]);
-			node->child[1]=newconst(GEN_LABEL,ast->line,label_count);*/
 			struct astnode *node=eval_jz(ast->child[0],label_count);
 			
 			struct astnode *child=eval_statement(ast->child[1]);
 			
 			struct constnode *label=newconst(GEN_LABEL,ast->line,label_count);
 			
-			struct astlist *list=newastlist(GEN_LIST,ast->line,node,
-									newastlist(GEN_LIST,ast->line,child,
+			struct astlist *list=make_astlist(node);
+			list=attach_astlist(list,newastlist(GEN_LIST,ast->line,child,
 									newastlist(GEN_LIST,ast->line,label,NULL)));
 			return (void*)list;
 		}
@@ -185,9 +183,6 @@ struct astnode *eval_statement(struct astnode *ast)
 			int label_count=global_label_count;
 			global_label_count=global_label_count+2;
 			
-			/*struct astnode *node=newnode(GEN_JZ+gen_size->int_size,ast->line,2);
-			node->child[0]=eval_expression(ast->child[0]);
-			node->child[1]=newconst(GEN_LABEL,ast->line,label_count);*/
 			struct astnode *node=eval_jz(ast->child[0],label_count);
 			
 			struct astnode *child1=eval_statement(ast->child[1]);
@@ -201,8 +196,8 @@ struct astnode *eval_statement(struct astnode *ast)
 			
 			struct constnode *label2=newconst(GEN_LABEL,ast->line,label_count+1);
 			
-			struct astlist *list=newastlist(GEN_LIST,ast->line,node,
-									newastlist(GEN_LIST,ast->line,child1,
+			struct astlist *list=make_astlist(node);
+			list=attach_astlist(list,newastlist(GEN_LIST,ast->line,child1,
 									newastlist(GEN_LIST,ast->line,jump,
 									newastlist(GEN_LIST,ast->line,label1,
 									newastlist(GEN_LIST,ast->line,child2,
@@ -219,10 +214,7 @@ struct astnode *eval_statement(struct astnode *ast)
 			break_label=label_count+1;
 			
 			struct constnode *label1=newconst(GEN_LABEL,ast->line,label_count);
-			
-			/*struct astnode *node=newnode(GEN_JZ+gen_size->int_size,ast->line,2);
-			node->child[0]=eval_expression(ast->child[0]);
-			node->child[1]=newconst(GEN_LABEL,ast->line,label_count+1);*/
+
 			struct astnode *node=eval_jz(ast->child[0],label_count+1);
 			
 			struct astnode *child=eval_statement(ast->child[1]);
@@ -233,11 +225,11 @@ struct astnode *eval_statement(struct astnode *ast)
 			struct constnode *label2=newconst(GEN_LABEL,ast->line,label_count+1);
 			
 			
-			struct astlist *list=newastlist(GEN_LIST,ast->line,label1,
-									newastlist(GEN_LIST,ast->line,node,
-									newastlist(GEN_LIST,ast->line,child,
+			struct astlist *list=newastlist(GEN_LIST,ast->line,label1,NULL);
+			list=attach_astlist(list,make_astlist(node));
+			list=attach_astlist(list,newastlist(GEN_LIST,ast->line,child,
 									newastlist(GEN_LIST,ast->line,jump,
-									newastlist(GEN_LIST,ast->line,label2,NULL)))));
+									newastlist(GEN_LIST,ast->line,label2,NULL))));
 			continue_label=c_label;
 			break_label=b_label;
 			return (void*)list;
@@ -255,17 +247,18 @@ struct astnode *eval_statement(struct astnode *ast)
 			
 			struct astnode *child=eval_statement(ast->child[1]);
 			
-			struct astnode *node=newnode(GEN_JNZ+gen_size->int_size,ast->line,2);
+			/*struct astnode *node=newnode(GEN_JNZ+gen_size->int_size,ast->line,2);
 			node->child[0]=eval_expression(ast->child[0]);
-			node->child[1]=newconst(GEN_LABEL,ast->line,label_count);
+			node->child[1]=newconst(GEN_LABEL,ast->line,label_count);*/
+			struct astnode *node=eval_jnz(ast->child[0],label_count);
 			
 			struct constnode *label2=newconst(GEN_LABEL,ast->line,label_count+1);
 			
 			
 			struct astlist *list=newastlist(GEN_LIST,ast->line,label1,
-									newastlist(GEN_LIST,ast->line,child,
-									newastlist(GEN_LIST,ast->line,node,
-									newastlist(GEN_LIST,ast->line,label2,NULL))));
+									newastlist(GEN_LIST,ast->line,child,NULL));
+			list=attach_astlist(list,make_astlist(node));
+			list=attach_astlist(list,newastlist(GEN_LIST,ast->line,label2,NULL));
 			
 			continue_label=c_label;
 			break_label=b_label;
@@ -290,9 +283,6 @@ struct astnode *eval_statement(struct astnode *ast)
 			
 			struct constnode *label1=newconst(GEN_LABEL,ast->line,label_count);
 			
-			/*struct astnode *condition=newnode(GEN_JZ+gen_size->int_size,ast->line,2);
-			condition->child[0]=eval_expression(ast->child[1]);
-			condition->child[1]=newconst(GEN_LABEL,ast->line,label_count+2);*/
 			struct astnode *condition=eval_jz(ast->child[1],label_count+2);
 			
 			struct astnode *statement=eval_statement(ast->child[3]);
@@ -306,18 +296,18 @@ struct astnode *eval_statement(struct astnode *ast)
 			
 			struct constnode *label3=newconst(GEN_LABEL,ast->line,label_count+2);
 			
+			
 			struct astlist *list=newastlist(GEN_LIST,ast->line,start,
-									newastlist(GEN_LIST,ast->line,label1,
-									newastlist(GEN_LIST,ast->line,condition,
-									newastlist(GEN_LIST,ast->line,statement,
+									newastlist(GEN_LIST,ast->line,label1,NULL));
+			list=attach_astlist(list,make_astlist(condition));
+			list=attach_astlist(list,newastlist(GEN_LIST,ast->line,statement,
 									newastlist(GEN_LIST,ast->line,label2,
 									newastlist(GEN_LIST,ast->line,update,
 									newastlist(GEN_LIST,ast->line,jump,
-									newastlist(GEN_LIST,ast->line,label3,NULL))))))));
+									newastlist(GEN_LIST,ast->line,label3,NULL))))));
 									
 			continue_label=c_label;
 			break_label=b_label;
-			
 			
 			int stack=leave_block()+max_stack;
 			if(stack>local_max)
@@ -916,9 +906,81 @@ struct astnode *eval_jz(struct astnode *exp,int label)
 			jump->child[2]=newconst(GEN_LABEL,exp->line,label);
 			return jump;
 		}
+		case SYM_LOR:
+		{
+			int label_count=global_label_count;
+			global_label_count=global_label_count+1;
+			struct astlist *or_label=make_astlist((void*)newconst(GEN_LABEL,exp->line,label_count));
+			struct astlist *left=make_astlist(eval_jnz(exp->child[0],label_count));
+			struct astlist *right=make_astlist(eval_jz(exp->child[1],label));
+			return (void*)attach_astlist(attach_astlist(left,right),or_label);
+		}
+		case SYM_LAND:
+		{
+			struct astlist *left=make_astlist(eval_jz(exp->child[0],label));
+			struct astlist *right=make_astlist(eval_jz(exp->child[1],label));
+			return (void*)attach_astlist(left,right);
+		}
+		case '!':
+			return eval_jnz(exp->child[0],label);
 		default:
 		{
 			struct astnode *jump=newnode(GEN_JZ+gen_size->int_size,exp->line,2);
+			jump->child[0]=eval_expression(exp);
+			jump->child[1]=newconst(GEN_LABEL,exp->line,label);
+			return jump;
+		}
+	}
+}
+
+struct astnode *eval_jnz(struct astnode *exp,int label)
+{
+	switch(exp->id)
+	{
+		case SYM_EQ:	
+		case SYM_NE:	
+		case '<':	
+		case SYM_LE:	
+		case '>':	
+		case SYM_GE:	
+		{
+			int id=GEN_JNE;
+			switch(exp->id)
+			{
+				case SYM_EQ: 	id=GEN_JEQ;	break;
+				case SYM_NE:	id=GEN_JNE;	break;	
+				case '<':		id=GEN_JLT;	break;
+				case SYM_LE:	id=GEN_JLE;	break;
+				case '>':		id=GEN_JGT;	break;
+				case SYM_GE:	id=GEN_JGE;	break;
+				default:		fprintf(stderr,"Error eval jz\n");
+			}
+			struct astnode *jump=newnode(id+gen_size->int_size,exp->line,3);
+			jump->child[0]=eval_expression(exp->child[0]);
+			jump->child[1]=eval_expression(exp->child[1]);
+			jump->child[2]=newconst(GEN_LABEL,exp->line,label);
+			return jump;
+		}
+		case SYM_LAND:
+		{
+			int label_count=global_label_count;
+			global_label_count=global_label_count+1;
+			struct astlist *or_label=make_astlist((void*)newconst(GEN_LABEL,exp->line,label_count));
+			struct astlist *left=make_astlist(eval_jz(exp->child[0],label_count));
+			struct astlist *right=make_astlist(eval_jnz(exp->child[1],label));
+			return (void*)attach_astlist(attach_astlist(left,right),or_label);
+		}
+		case SYM_LOR:
+		{
+			struct astlist *left=make_astlist(eval_jnz(exp->child[0],label));
+			struct astlist *right=make_astlist(eval_jnz(exp->child[1],label));
+			return (void*)attach_astlist(left,right);
+		}
+		case '!':
+			return eval_jz(exp->child[0],label);
+		default:
+		{
+			struct astnode *jump=newnode(GEN_JNZ+gen_size->int_size,exp->line,2);
 			jump->child[0]=eval_expression(exp);
 			jump->child[1]=newconst(GEN_LABEL,exp->line,label);
 			return jump;

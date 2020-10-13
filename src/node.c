@@ -59,3 +59,25 @@ struct astlist *newastlist(int id,int line_number,void *child,void *next)
 	ptr->next=next;
 	return ptr;
 }
+
+struct astlist *attach_astlist(struct astlist *a,struct astlist *b)
+{
+	if(a==NULL)
+		return b;
+	struct astlist *list;
+	for(list=a;list->next!=NULL;list=list->next);
+	list->next=b;
+	return a;
+}
+#include "eval.h"
+struct astlist *make_astlist(struct astnode *node)
+{
+	if(node->id==GEN_LIST)
+	{
+		return (void *)node;
+	}
+	else
+	{
+		return newastlist(GEN_LIST,node->line,node,NULL);
+	}
+}

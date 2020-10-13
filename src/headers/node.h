@@ -47,3 +47,5 @@ struct astnode *newnode(int id,int line_number,int child_count);
 struct constnode *newconst(int id,int line_number,long val);
 
 struct astlist *newastlist(int id,int line_number,void *child,void *next);
+struct astlist *attach_astlist(struct astlist *a,struct astlist *b);
+struct astlist *make_astlist(struct astnode *node);
