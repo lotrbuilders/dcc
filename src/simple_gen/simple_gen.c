@@ -20,6 +20,7 @@
 #include "string_eval.h"
 #include "switch.h"
 
+int gen(struct astnode *ast);
 int gen_statement(struct astnode *ast);
 int gen_expression(struct astnode *ast);
 int gen_strings(struct string_list *list);
@@ -31,6 +32,14 @@ struct terminal term;
 int GEN_DEBUG=0;
 int global_label_count;
 int frame_size;
+
+int gen_init(struct astnode *ast)
+{
+	interface->global_prolog();
+	int n=gen(ast);
+	interface->global_epilog();
+	return n;
+}
 
 int gen(struct astnode *ast)
 {

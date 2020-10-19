@@ -1,10 +1,11 @@
-int main()
+int main(int argc)
 {
-	int a=4;
-	if(a>3)
+	if(argc==0)
 	{
 		return 1;
 	}
 	else 
-		return 0;
+	{
+		return argc+(2+main(argc-1));
+	}
 }

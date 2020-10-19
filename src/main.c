@@ -22,7 +22,7 @@
 void init_tokens();
 struct astnode *check_semantics(struct astnode *ast);
 struct astnode *eval(struct astnode *ast);
-int gen(struct astnode *ast);
+int gen_init(struct astnode *ast);
 void setup_backend();
 
 int error_count;
@@ -41,6 +41,6 @@ int main()
 	}
 	//fputs("\n\n",stderr);
 	struct astnode *ast2=eval(ast);
-	gen(ast2);
+	gen_init(ast2);
 	return 0;
 }

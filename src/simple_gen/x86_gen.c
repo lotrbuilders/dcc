@@ -39,6 +39,16 @@ void x86_section(int section)
 	return;
 }
 
+void x86_global_prolog()
+{
+	return;
+}
+
+void x86_global_epilog()
+{
+	return;
+}
+
 void x86_extern(char *name)
 {
 	printf("\textern %s\n",name);
@@ -580,6 +590,8 @@ void x86_string(int n, char *str)
 
 void setup_backend()
 {
+	x86_gen.global_prolog=x86_global_prolog;
+	x86_gen.global_epilog=x86_global_epilog;
 	x86_gen.extern_global=x86_extern;
 	x86_gen.define_global=x86_define;
 	x86_gen.common_global=x86_common;
