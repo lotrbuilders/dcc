@@ -3,7 +3,7 @@ A C compiler with a relatively easy to modify backend. Under hosted conditions i
 ## Limitations
 This compiler does not handle unions or typedefs and does not have unsigned integers or floats at present. The operation or, xor, shift left, shift right and increment and decrement are currently unsupported.
 Most anything else is present though K&R style declarations are not allowed and will produce errors.
-The compiler only turns preprocessed C into assembly. The top-level manager can call other programs to do preprocessing, assembling and linking. It uses the standard GCC tools for that and the x86 backend also uses glibc for library functions. 
+The compiler only turns preprocessed C into assembly. The top-level manager can call other programs to do preprocessing, assembling and linking. It uses the standard GCC tools for that and the x86 backend also uses glibc for library functions. Mod5 is dependent on mod5asm to do both assembling and linking.
 ### Known errors
 Function pointers are available though calling the return value of a function returning a function pointer does not work presently.
 ## Backend
@@ -11,7 +11,7 @@ Two backends are available: one for x86-32 and one for the mod5 processor. The g
 ## Optimization
 All operations on two constants are optimized to a single constant. Optimizition is non optional.
 ## Installation
-Currently installation targets linux only. For windows users WSL works.
+Currently installation targets linux only. For windows users WSL works. Mac might work out of the box, though this has not been tested.
 First create a builddirectory(standard is ./obj). You can then either make all or execute run.sh. Both will compile everything, but the second will run a test script. 
 After the makefile has been run there is an install.sh script, which can put the files in the correct location for a linux setup. To edit the locations have a look at /src/etc/dcc.c and the install.sh script.
 ## Licensing
