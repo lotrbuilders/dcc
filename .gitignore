@@ -55,3 +55,5 @@ dkms.conf
 *.s
 debug.txt
 cc*
+dcc
+*tmp
