@@ -39,10 +39,10 @@ int DEBUG_SEMANTICS=0;
 
 struct astnode *check_semantics(struct astnode *ast)
 {
-	if(DEBUG_SEMANTICS)
-		fprintf(stderr,"Check semantics\n");
 	if(ast==NULL)
 		return ast;
+	if(DEBUG_SEMANTICS)
+		fprintf(stderr,"Check semantics on line %d\n",ast->line);
 	switch(ast->id)
 	{
 		case SYM_TRANSLATION_UNIT:
@@ -280,13 +280,13 @@ void check_specifier_list(struct typelist *type, int line)
 
 struct typelist *check_declaration(struct astnode *ast,char **name,struct astnode **initialization)
 {
-	if(DEBUG_SEMANTICS)
-		fprintf(stderr,"Check declaration\n");
 	if(ast==NULL)
 	{
 		fprintf(stderr,"check_declaration ast==NULL\n");
 		exit(-1);
 	}
+	if(DEBUG_SEMANTICS)
+		fprintf(stderr,"Check declaration on line %d\n",ast->line);
 	if(ast->id!=SYM_DECLARATION)
 	{
 		error("Expected decleration when checking for decleration",ast->line);
@@ -313,8 +313,8 @@ struct typelist *check_declaration(struct astnode *ast,char **name,struct astnod
 
 struct astnode *check_parameter_list(struct astnode *ast)
 {
-	if(DEBUG_SEMANTICS)
-		fprintf(stderr,"Check parameter list\n");
+	if(DEBUG_SEMANTICS&&ast!=NULL)
+		fprintf(stderr,"Check parameter list on line %d\n",ast->line);
 	for(struct astnode *list=ast;list!=NULL;list=list->child[2])
 	{
 		struct astnode *init;
@@ -352,10 +352,10 @@ int in_loop;
 
 struct astnode *check_statements(struct astnode *ast)
 {
-	if(DEBUG_SEMANTICS)
-		fprintf(stderr,"Check statements\n");
 	if(ast==NULL)
 		return ast;
+	if(DEBUG_SEMANTICS)
+		fprintf(stderr,"Check statements on line %d\n",ast->line);
 	switch(ast->id)
 	{
 		case SYM_COMPOUND_STATEMENT:
@@ -556,10 +556,10 @@ struct astnode *check_statements(struct astnode *ast)
 
 struct astnode *check_expression(struct astnode *ast)
 {
-	if(DEBUG_SEMANTICS)
-		fprintf(stderr,"Check expression\n");
 	if(ast==NULL)
 		return ast;
+	if(DEBUG_SEMANTICS)
+		fprintf(stderr,"Check expression on line %d\n",ast->line);
 	switch(ast->id)
 	{
 		case SYM_NUM:
@@ -582,7 +582,10 @@ struct astnode *check_expression(struct astnode *ast)
 						ast->id=SYM_IDG;
 					}
 					else
+					{
+						fprintf(stderr,"%s: ",(char*)ast->child[0]);
 						error("Identifier not defined",ast->line);
+					}
 				}
 				else 
 					ast->id=SYM_IDF;
@@ -808,7 +811,10 @@ struct astnode *check_lvalue(struct astnode *ast)
 						ast->id=SYM_IDG;
 					}
 					else
+					{
+						fprintf(stderr,"%s: ",(char*)ast->child[0]);
 						error("Identifier not defined",ast->line);
+					}
 				}
 				else 
 					ast->id=SYM_IDF;

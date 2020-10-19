@@ -146,6 +146,37 @@ void x86_constant(int n)
 	return;
 }
 
+int x86_is_terminal(struct astnode *ast)
+{
+	switch(ast->id)
+	{
+		case GEN_NUM+P+4:
+		case GEN_NUM+I+4:
+		case GEN_LOADL+I+4:
+		case GEN_LOADL+P+4:
+		case GEN_LOADF+I+4:
+		case GEN_LOADF+P+4:
+		case GEN_LOADG+I+4:
+		case GEN_LOADG+P+4:
+			return 1;
+			
+		case GEN_LOADL+I+1:
+		case GEN_LOADL+I+2:
+		case GEN_LOADF+I+1:
+		case GEN_LOADF+I+2:
+		case GEN_LOADG+I+1:
+		case GEN_LOADG+I+2:
+		case GEN_ADDRL+P+4:
+		case GEN_ADDRF+P+4:
+			return 0;
+			
+		case GEN_ADDRG+P+4:
+		case GEN_STRING+P+4:
+			return 1;
+	}
+	return 0;
+}
+
 
 void x86_terminal(struct terminal *term)
 {
@@ -279,6 +310,8 @@ void x86_mem_imm(struct terminal *term)
 		case GEN_STRING+P+4:
 			printf(".S%d\n",(int)term->val);
 			break;
+		default:
+			printf("unkown mem imm %x\n",term->type);
 	}
 	return;
 }
@@ -545,7 +578,7 @@ void x86_string(int n, char *str)
 	return;
 }
 
-void x86_setup()
+void setup_backend()
 {
 	x86_gen.extern_global=x86_extern;
 	x86_gen.define_global=x86_define;
@@ -562,6 +595,7 @@ void x86_setup()
 	x86_gen.jump_case=x86_jump_case;
 	x86_gen.save_top=x86_save_top;
 	x86_gen.load_const=x86_constant;
+	x86_gen.is_terminal=x86_is_terminal;
 	x86_gen.terminal_expression=x86_terminal;
 	x86_gen.cast_expression=x86_cast_expression;
 	x86_gen.unary_expression=x86_unary_expression;

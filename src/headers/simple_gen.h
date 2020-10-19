@@ -24,6 +24,8 @@ struct gen_struct
 	void (*extern_global)(char *name);
 	void (*common_global)(char *name,int size);
 	void (*define_global)(char *name,int size,long val);
+	void (*global_prolog)();
+	void (*global_epilog)();
 	void (*function_prolog)(char *name,struct astnode *arguments);
 	void (*function_epilog)(char *name);
 	void (*enter_frame)(int size);
@@ -37,6 +39,7 @@ struct gen_struct
 	void (*save_top)();
 	void (*load_const)(int n);
 	void (*load_string)(int n);
+	int  (*is_terminal)(struct astnode *term);
 	void (*terminal_expression)(struct terminal *term);
 	void (*unary_expression)(int op,struct terminal *term);
 	void (*cast_expression)(int to,int from);

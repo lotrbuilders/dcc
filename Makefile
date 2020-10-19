@@ -12,11 +12,11 @@ vpath %.h $(IDIR)
 vpath %.o $(BDIR)
 
 _OBJ = main.o errorhandling.o tokens.o lexer.o node.o parser.o declaration_parser.o statement_parser.o expression_parser.o semantics.o \
-		type.o eval.o simple_gen.o identifier.o global_eval.o constant_evaluation.o struct.o switch.o \
-		x86_gen.o
+		type.o eval.o simple_gen.o identifier.o global_eval.o constant_evaluation.o struct.o switch.o 
+		
 OBJ = $(patsubst %,$(BDIR)/%,$(_OBJ))
 
-all: cc dcc
+all: cc-i386 cc-mod5 dcc
 
 $(BDIR)/errorhandling.o : errorhandling.c
 	$(DCC) $(CFLAGS) -c -o $@ $<
@@ -82,16 +82,20 @@ $(BDIR)/simple_gen.o : simple_gen.c simple_gen.h node.h eval.h
 $(BDIR)/x86_gen.o : x86_gen.c node.h eval.h
 	$(DCC) $(CFLAGS) -c -o $@ $<
 
-	
+$(BDIR)/mod5_gen.o : mod5_gen.c node.h eval.h
+	$(DCC) $(CFLAGS) -c -o $@ $<	
 	
 $(BDIR)/main.o : main.c lexer.h tokens.h
 	$(DCC) $(CFLAGS) -c -o $@ $<
 
-cc : $(OBJ)
+cc-i386 : $(OBJ) $(BDIR)/x86_gen.o
+	$(CC) $(CFLAGS) -o $@ $^
+	
+cc-mod5 : $(OBJ) $(BDIR)/mod5_gen.o
 	$(CC) $(CFLAGS) -o $@ $^
 	
 dcc : dcc.c
 	$(DCC) $(CFLAGS) -o $@ $<
 	
 clean :
-	rm -f $(OBJ)
+	rm -f $(OBJ) $(BDIR)/x86_gen.o $(BDIR)/mod5_gen.o

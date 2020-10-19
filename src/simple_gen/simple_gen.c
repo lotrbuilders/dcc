@@ -201,6 +201,7 @@ int gen_statement(struct astnode *ast)
 			else 
 			{
 				gen_expression(ast->child[1]);
+				resolve_terminal();
 				interface->save_top();
 				gen_expression(ast->child[0]);
 				resolve_terminal();
@@ -226,7 +227,6 @@ int gen_statement(struct astnode *ast)
 					int label=((struct constnode *)ast->child[1])->val;
 					interface->jump(label);
 				}
-				
 			}
 		}
 		break;
@@ -254,7 +254,7 @@ int is_terminal(struct astnode *ast)
 			if(gen_size->int_size!=2)
 				return 0;
 			else 
-				return 1;
+				return interface->is_terminal(ast);
 			
 		case GEN_LOADL+I+4:
 		case GEN_LOADG+I+4:
@@ -262,7 +262,7 @@ int is_terminal(struct astnode *ast)
 			if(gen_size->int_size!=4)
 				return 0;
 			else 
-				return 1;
+				return interface->is_terminal(ast);
 			
 		case GEN_LOADL+I+8:
 		case GEN_LOADG+I+8:
@@ -270,7 +270,7 @@ int is_terminal(struct astnode *ast)
 			if(gen_size->int_size!=8)
 				return 0;
 			else 
-				return 1;
+				return interface->is_terminal(ast);
 		
 		case GEN_NUM+I+2:
 		case GEN_NUM+I+4:
@@ -302,7 +302,7 @@ int is_terminal(struct astnode *ast)
 		case GEN_STRING+P+2:
 		case GEN_STRING+P+4:
 		case GEN_STRING+P+8:
-			return 1;
+			return interface->is_terminal(ast);
 	}
 	return 0;
 }
@@ -368,8 +368,8 @@ int gen_expression(struct astnode *ast)
 			term.type=ast->id;
 			term.val=((struct constnode *)ast)->val;
 			next_terminal=&term;
-			if(!is_terminal(ast))
-				resolve_terminal();
+			//if(!is_terminal(ast))
+			//	resolve_terminal();
 			break;	
 			
 		case GEN_LOADG+I+1:
@@ -387,8 +387,8 @@ int gen_expression(struct astnode *ast)
 			term.type=ast->id;
 			term.ptr=ast->child[0];
 			next_terminal=&term;
-			if(!is_terminal(ast))
-				resolve_terminal();
+			//if(!is_terminal(ast))
+			//	resolve_terminal();
 			break;
 			
 	
@@ -472,8 +472,10 @@ int gen_expression(struct astnode *ast)
 				if(GEN_DEBUG)
 					fprintf(stderr,"\tgen no terminal\n");
 				gen_expression(ast->child[1]);
+				resolve_terminal();
 				interface->save_top();
 				gen_expression(ast->child[0]);
+				resolve_terminal();
 				interface->expression(ast->id,next_terminal);
 				next_terminal=0;
 			}
@@ -500,6 +502,7 @@ int gen_expression(struct astnode *ast)
 			else 
 			{
 				gen_expression(ast->child[1]);
+				resolve_terminal();
 				interface->save_top();
 				gen_expression(ast->child[0]);
 				resolve_terminal();
@@ -538,6 +541,7 @@ int gen_expression(struct astnode *ast)
 			else 
 			{
 				gen_expression(ast->child[1]);
+				resolve_terminal();
 				interface->save_top();
 				gen_expression(ast->child[0]);
 				resolve_terminal();

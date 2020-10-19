@@ -23,14 +23,14 @@ void init_tokens();
 struct astnode *check_semantics(struct astnode *ast);
 struct astnode *eval(struct astnode *ast);
 int gen(struct astnode *ast);
-void x86_setup();
+void setup_backend();
 
 int error_count;
 
 int main()
 {
 	init_tokens();
-	x86_setup();
+	setup_backend();
 	void *ast=parse();
 	//fputs("\n\n",stderr);
 	check_semantics(ast);

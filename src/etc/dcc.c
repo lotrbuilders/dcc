@@ -26,6 +26,10 @@
 char *strdup(char *str);
 //int strlen(char *str);
 //char *strcpy(char *s1,char *s2);
+char *assembler="nasm -felf -F dwarf -g";
+char *compiler="cc-i386";
+char *linker="cc -m32";
+int linker_enabled=1;
 
 char *input_file;
 char *cpp_file;
@@ -81,6 +85,24 @@ void process_arguments( int argc, char **argv)
 					last_stage=ASSEMBLE;
 					break;
 				case 'm': 
+				{
+					if((!strcmp(argv[i]+2,"=i386"))||(!strcmp(argv[i]+2,"32")))
+					{
+						assembler="nasm -felf -F dwarf -g";
+						compiler="cc-i386";
+						linker_enabled=1;
+					}
+					else if(!strcmp(argv[i]+2,"=mod5"))
+					{
+						assembler="mod5asm";
+						compiler="cc-mod5";
+						linker_enabled=0;
+					}
+					else
+					{
+						fprintf(stderr,"Bad -m machine\n");
+					}
+				}
 				case 's': break;
 				default:
 					fprintf(stderr,"Error unknown option\n");
@@ -167,24 +189,25 @@ int main(int argc, char **argv)
 	if(out)
 		exit(-1);
 	
-	snprintf(command,512,"%s/cc <%s >%s",DCCDIR,cpp_file,asm_file);
+	snprintf(command,512,"%s/%s <%s >%s",DCCDIR,compiler,cpp_file,asm_file);
 	out=system(command);
 	if(out)
 		exit(-1);
 	if(last_stage==COMPILE)
 		return 0;
 	
-	snprintf(command,512,"nasm -felf -F dwarf -g -o %s %s",obj_file,asm_file);
+	snprintf(command,512,"%s -o %s %s",assembler,obj_file,asm_file);
 	out=system(command);
 	if(out)
 		exit(-1);
 	if(last_stage==ASSEMBLE)
 		return 0;
-	
-	snprintf(command,512,"cc -m32 -o %s %s",output_file,obj_file);
-	out=system(command);
-	if(out)
-		return -1;
-	
+	if(linker_enabled)
+	{
+		snprintf(command,512,"%s -o %s %s",linker,output_file,obj_file);
+		out=system(command);
+		if(out)
+			return -1;
+	}
 	return 0;
 } 
