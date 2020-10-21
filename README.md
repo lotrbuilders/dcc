@@ -12,7 +12,7 @@ Two backends are available: one for x86-32 and one for the mod5 processor. The g
 All operations on two constants are optimized to a single constant. Optimizition is non optional.
 ## Installation
 Currently installation targets linux only. For windows users WSL works. Mac might work out of the box, though this has not been tested.
-First create a builddirectory(standard is ./obj). You can then either make all or execute run.sh. Both will compile everything, but the second will run a test script. 
+First create a builddirectory(standard is ./obj). You can then either make all or execute run.sh( mod5-run.sh for the mod5 processor). Both make and the .sh files will compile everything, but the .sh files will run a test script. 
 After the makefile has been run there is an install.sh script, which can put the files in the correct location for a linux setup. To edit the locations have a look at /src/etc/dcc.c and the install.sh script.
 ## Licensing
 The compiler is licensed under GPL as shown by the license. The testsuite under /testing/ is licensed under MIT. 
