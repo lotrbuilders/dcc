@@ -69,6 +69,7 @@ void process_arguments( int argc, char **argv)
 				case 'h': break;
 				case 'o': //select output file
 					output_file=argv[i+1];
+					i=i+1;
 					break;
 				case 'I': //select include dir
 				{
@@ -205,6 +206,13 @@ int main(int argc, char **argv)
 	if(linker_enabled)
 	{
 		snprintf(command,512,"%s -o %s %s",linker,output_file,obj_file);
+		out=system(command);
+		if(out)
+			return -1;
+	}
+	else 
+	{
+		snprintf(command,512,"cp %s %s",obj_file,output_file);
 		out=system(command);
 		if(out)
 			return -1;
