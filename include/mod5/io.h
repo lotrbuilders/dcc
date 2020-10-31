@@ -8,3 +8,4 @@
 #define IO_HEX1 *((char *)0xffffff14)
 #define IO_HEX2 *((char *)0xffffff18)
 #define IO_HEX3 *((char *)0xffffff1C)
+void wait(int time);

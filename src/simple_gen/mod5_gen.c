@@ -149,7 +149,7 @@ void mod5_global_prolog()
 	printf("\tmul %%r2,25000\n");
 	printf("__WAIT_LOOP:\n");
 	printf("\tsub %%r2,1\n");
-	printf("\tblt %%r2,%%r0,__WAIT_LOOP\n");
+	printf("\tblt %%r0,%%r2,__WAIT_LOOP\n");
 	printf("\tjr %%r28\n");
 	return;
 }
