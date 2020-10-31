@@ -142,6 +142,15 @@ void mod5_global_prolog()
 	printf("\tjal %%r28,main\n");
 	printf("__INFINITE_LOOP:\n\tjp __INFINITE_LOOP\n");
 	printf("__STACK_START:\n\tdw 0xfe00\n");
+	printf("wait:\n");
+	printf("\tmov %%r1,%%r31\n");
+	printf("\tadd %%r1,4\n");
+	printf("\tlw %%r2,[%%r1]\n");
+	printf("\tmul %%r2,25000\n");
+	printf("__WAIT_LOOP:\n");
+	printf("\tsub %%r2,1\n");
+	printf("\tblt %%r2,%%r0,__WAIT_LOOP\n");
+	printf("\tjr %%r28\n");
 	return;
 }
 
@@ -606,7 +615,7 @@ void mod5_branch(int op, struct terminal *term, int label)
 							printf("\tbeq %%r%d, %%r%d, __L%d\n",left,right,label);	break;
 		case GEN_JGE+I+4:	printf("\tblt %%r%d, %%r%d, __L%d\n",right,left,label);	
 							printf("\tbeq %%r%d, %%r%d, __L%d\n",right,left,label);	break;
-		case GEN_JGT+I+4:	printf("\tblt %%r%d, %%r%d, __M%d\n",right,left,label); break;
+		case GEN_JGT+I+4:	printf("\tblt %%r%d, %%r%d, __L%d\n",right,left,label); break;
 	}
 	return;
 }
@@ -619,14 +628,14 @@ void mod5_safe_reg_call(int curreg)
 {
 	for(int i=8;i<=curreg;i=i+1)
 		mod5_push_reg(i);
-	mod5_push_reg(28);
+	
 	return;
 }
 
 //Reload safed registers
 void mod5_return_reg_call(int curreg)
 {
-	mod5_pop_reg(28);
+	
 	for(int i=curreg;i>=8;i=i-1)
 		mod5_pop_reg(i);
 	return;
@@ -648,26 +657,29 @@ int mod5_eval_call_arg(struct astlist *arguments)
 //Generate call instructions. Backend is responsible for actually generating the arguments
 void mod5_call(void *lvalue,struct astlist *arguments,int size,int virtual_call)
 {
+	mod5_safe_reg_call(mod5_current_reg-1);
 	int argc=mod5_eval_call_arg(arguments);
 	if(virtual_call)
 	{
 		gen_expression(lvalue);
 		resolve_terminal();
-		mod5_safe_reg_call(mod5_current_reg-1);
+		
+		mod5_push_reg(28);
 		printf("\tjalr %%r28,%%r%d\n",mod5_current_reg);
 		if(mod5_current_reg!=8)
 			printf("\tmov %%r%d, %%r8\n",mod5_current_reg);
-		mod5_return_reg_call(mod5_current_reg-1);
+		mod5_pop_reg(28);
 	}
 	else
 	{
-		mod5_safe_reg_call(mod5_current_reg-1);
+		mod5_push_reg(28);
 		printf("\tjal %%r28, %s\n",(char *)lvalue);
 		if(mod5_current_reg!=8)
 			printf("\tmov %%r%d, %%r8\n",mod5_current_reg);
-		mod5_return_reg_call(mod5_current_reg-1);
+		mod5_pop_reg(28);
 	}
 	printf("\tadd %%r31,%d\n",4*argc);
+	mod5_return_reg_call(mod5_current_reg-1);
 	mod5_cast_expression(size,4);
 	return;
 }
