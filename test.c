@@ -1,11 +1,6 @@
-int main(int argc)
+#include <io>
+int main()
 {
-	if(argc==0)
-	{
-		return 1;
-	}
-	else 
-	{
-		return argc+(2+main(argc-1));
-	}
+	IO_LED =1;
+	return 4;
 }

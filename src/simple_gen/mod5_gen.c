@@ -30,7 +30,7 @@ int mod5_label_count;
 		for pop data is loaded first then stack is incremented
 	%r0	 		is zero register
 	%r1  		is compiler register
-	%r2  - %r3	are reversed
+	%r2  - %r7	are reserved
 	%r8  - %r15 are temp registers
 	%r16 - %r27 are unused
 	%r28 		is return address
@@ -138,6 +138,10 @@ int mod5_prev_reg()
 void mod5_global_prolog()
 {
 	//TODO: use this space to insert library function
+	printf("\tlw %%r31,[__STACK_START]\n");
+	printf("\tjal %%r28,main\n");
+	printf("__INFINITE_LOOP:\n\tjp __INFINITE_LOOP\n");
+	printf("__STACK_START:\n\tdw 0xfe00\n");
 	return;
 }
 
@@ -600,11 +604,9 @@ void mod5_branch(int op, struct terminal *term, int label)
 		
 		case GEN_JLE+I+4:	printf("\tblt %%r%d, %%r%d, __L%d\n",left,right,label);
 							printf("\tbeq %%r%d, %%r%d, __L%d\n",left,right,label);	break;
-		case GEN_JGE+I+4:	printf("\tblt %%r%d, %%r%d, __L%d\n",right,left,label);	break;
-		case GEN_JGT+I+4:	printf("\tblt %%r%d, %%r%d, __M%d\n",left,right,mod5_label_count);
-							printf("\tbne %%r%d, %%r%d, __L%d\n",left,right,label);	
-							printf("__M%d:\n",mod5_label_count);
-							mod5_label_count=mod5_label_count+1;					break;
+		case GEN_JGE+I+4:	printf("\tblt %%r%d, %%r%d, __L%d\n",right,left,label);	
+							printf("\tbeq %%r%d, %%r%d, __L%d\n",right,left,label);	break;
+		case GEN_JGT+I+4:	printf("\tblt %%r%d, %%r%d, __M%d\n",right,left,label); break;
 	}
 	return;
 }
@@ -631,22 +633,22 @@ void mod5_return_reg_call(int curreg)
 }
 
 //Evaluate arguments from right to left
-void mod5_eval_call_arg(struct astlist *arguments)
+int mod5_eval_call_arg(struct astlist *arguments)
 {
 	if(arguments==NULL)
-		return;
-	mod5_eval_call_arg(arguments->next);
+		return 0;
+	int argc=mod5_eval_call_arg(arguments->next);
 	gen_expression(arguments->child);
 	resolve_terminal();
 	mod5_push_reg(mod5_current_reg);
 	mod5_stack=mod5_stack+4;
-	return;
+	return argc+1;
 }
 
 //Generate call instructions. Backend is responsible for actually generating the arguments
 void mod5_call(void *lvalue,struct astlist *arguments,int size,int virtual_call)
 {
-	mod5_eval_call_arg(arguments);
+	int argc=mod5_eval_call_arg(arguments);
 	if(virtual_call)
 	{
 		gen_expression(lvalue);
@@ -665,6 +667,7 @@ void mod5_call(void *lvalue,struct astlist *arguments,int size,int virtual_call)
 			printf("\tmov %%r%d, %%r8\n",mod5_current_reg);
 		mod5_return_reg_call(mod5_current_reg-1);
 	}
+	printf("\tadd %%r31,%d\n",4*argc);
 	mod5_cast_expression(size,4);
 	return;
 }
